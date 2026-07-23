@@ -11,7 +11,7 @@
     {
       "address": "0x79c9e2757fea21756f98fcaa58d8c07f93007369fa7840aa067107368d9e14ea",
       "label": "EVE <=> LUX Exchange",
-      "type": "exchange"
+      "type": "issuer"
     }
   ]
 }
