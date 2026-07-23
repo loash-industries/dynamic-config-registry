@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "cortex": {
+      "url": "http://cortex-relay-dev-api.trinary.exchange/mcp",
+      "type": "http"
+    }
+  }
+}

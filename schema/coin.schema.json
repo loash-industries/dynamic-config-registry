@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://registry.example.com/schema/coin.schema.json",
+  "title": "Sui Coin Registry Entry",
+  "description": "A single coin entry in the Sui coin registry. One file per coin under coins/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chain_id", "coin_type", "symbol", "name", "decimals"],
+  "properties": {
+    "chain_id": {
+      "type": "string",
+      "description": "CAIP-2 chain identifier. Restricted to the Sui namespace, e.g. sui:mainnet, sui:testnet, sui:devnet.",
+      "pattern": "^sui:[-_a-zA-Z0-9]{1,32}$"
+    },
+    "coin_type": {
+      "type": "string",
+      "description": "Fully-qualified Sui coin type: 0x<address>::<module>::<STRUCT>.",
+      "pattern": "^0x[0-9a-fA-F]{1,64}::[a-zA-Z_][a-zA-Z0-9_]*::[a-zA-Z_][a-zA-Z0-9_]*$"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Ticker symbol, e.g. CRED.",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^\\S+(?: \\S+)*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable coin name.",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "decimals": {
+      "type": "integer",
+      "description": "Number of decimals (Sui stores this as a u8).",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "icon_url": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 2048,
+      "pattern": "^https?://"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "project_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 32 },
+      "uniqueItems": true,
+      "maxItems": 32
+    },
+    "treasury_addresses": {
+      "type": "array",
+      "description": "Known protocol/team/treasury addresses associated with this coin.",
+      "items": { "$ref": "#/definitions/treasury_address" },
+      "uniqueItems": true
+    }
+  },
+  "definitions": {
+    "treasury_address": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["address", "type"],
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "A Sui account/object address.",
+          "pattern": "^0x[0-9a-fA-F]{1,64}$"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "treasury",
+            "vesting",
+            "team",
+            "community",
+            "liquidity",
+            "staking",
+            "ecosystem",
+            "burn",
+            "other"
+          ]
+        }
+      }
+    }
+  }
+}

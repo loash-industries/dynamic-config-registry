@@ -1,0 +1,27 @@
+{
+  "name": "dynamic-config-registry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static registry of Sui coin types, validated and published to a CDN on merge to main.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "validate": "tsx src/validate.ts",
+    "upsert": "tsx src/upsert.ts",
+    "build": "tsx src/build.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

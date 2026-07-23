@@ -1,0 +1,5 @@
+name: dynamic-config-registry
+team: platform
+language: typescript
+framework: none
+repo: loash-industries/dynamic-config-registry

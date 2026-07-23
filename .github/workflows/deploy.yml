@@ -1,0 +1,71 @@
+name: Deploy
+
+# Publish status: MANUAL / LOCAL for now — the push to the CDN is NOT automated
+# on merge to main.
+#
+# Why publishing is not fully wired into CI/CD yet
+# ------------------------------------------------
+# CI (ci.yml) already validates and builds the registry on every PR and merge,
+# so `main` is always known-good and a fresh dist/ is produced as an artifact.
+# The remaining step — pushing to the object store — is done manually by a
+# maintainer from their machine (see scripts/push.sh and the cortex skill
+# `platform/push-coin-registry`).
+#
+# This is a deliberate, temporary state:
+#   - The intended end state is a Temporal-orchestrated publish job (retries,
+#     scheduling, auditability, cache invalidation) rather than a raw CI push.
+#   - Standing that up — the Temporal worker + always-on infra to run it — has a
+#     recurring cost we are not ready to take on yet, so we are deferring it.
+#   - Until then, keeping the credentials off automated CI and publishing locally
+#     also keeps the blast radius of the long-lived S3 keys small.
+#
+# This workflow therefore runs ONLY on manual dispatch, as an escape hatch that
+# reuses the exact same publish logic (scripts/push.sh). It is not a scheduled
+# or on-merge deploy. When we migrate to Temporal, this file is retired.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and report only; do not upload"
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-registry
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Publishing reuses scripts/push.sh so local and CI logic never drift.
+      # See the script header for the required S3_* / credential configuration.
+      #
+      # Configure once in the repo's `production` Environment (see README):
+      #   Secrets:   HETZNER_S3_ACCESS_KEY, HETZNER_S3_SECRET_KEY
+      #   Variables: HETZNER_S3_ENDPOINT (e.g. https://fsn1.your-objectstorage.com)
+      #              HETZNER_S3_REGION   (e.g. fsn1)
+      #              HETZNER_S3_BUCKET   (bucket name)
+      - name: Publish to Hetzner Object Storage
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.HETZNER_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.HETZNER_S3_SECRET_KEY }}
+          S3_ENDPOINT: ${{ vars.HETZNER_S3_ENDPOINT }}
+          S3_REGION: ${{ vars.HETZNER_S3_REGION }}
+          S3_BUCKET: ${{ vars.HETZNER_S3_BUCKET }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            scripts/push.sh --dry-run
+          else
+            scripts/push.sh
+          fi
