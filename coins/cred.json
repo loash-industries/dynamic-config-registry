@@ -5,19 +5,14 @@
   "name": "Inter-galactic Credits",
   "decimals": 9,
   "icon_url": "https://assets.example.com/coins/cred.png",
-  "description": "Credits — the native utility token for the example protocol.",
-  "project_url": "https://cred.example.com",
+  "description": "Credits - the neutral trading currency for Trinary Exchange.",
+  "project_url": "https://trinary.exchange",
   "tags": ["defi", "governance"],
   "treasury_addresses": [
     {
-      "address": "0x1111111111111111111111111111111111111111111111111111111111111111",
-      "label": "Protocol treasury",
-      "type": "treasury"
-    },
-    {
-      "address": "0x2222222222222222222222222222222222222222222222222222222222222222",
-      "label": "Team vesting",
-      "type": "vesting"
+      "address": "0x7a1378aafadef8ce743b72e8b248295c8f61c102c94040161146ea4d51a182b6",
+      "label": "CRED Issuer",
+      "type": "issuer"
     }
   ]
 }

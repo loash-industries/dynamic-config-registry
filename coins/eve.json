@@ -1,0 +1,17 @@
+{
+  "chain_id": "sui:testnet",
+  "coin_type": "0xac361aa5ceb726bd974f885c9dea9e55dc9bc98fa1f5731c5965a810707bf0b8::EVE::EVE",
+  "symbol": "EVE",
+  "name": "EVE Token",
+  "decimals": 9,
+  "icon_url": "https://artifacts.evefrontier.com/logos/eve-test-token.png",
+  "description": "Native token for EVE Frontier on Sui. Powers the open, composable Eve Frontier Game and the builder-driven economy.",
+  "project_url": "https://evefrontier.com",
+  "treasury_addresses": [
+    {
+      "address": "0x79c9e2757fea21756f98fcaa58d8c07f93007369fa7840aa067107368d9e14ea",
+      "label": "EVE <=> LUX Exchange",
+      "type": "exchange"
+    }
+  ]
+}
