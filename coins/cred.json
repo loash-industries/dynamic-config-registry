@@ -10,7 +10,7 @@
   "tags": ["defi", "governance"],
   "treasury_addresses": [
     {
-      "address": "0x7a1378aafadef8ce743b72e8b248295c8f61c102c94040161146ea4d51a182b6",
+      "address": "0xfbcbd9155669e157ce3999e073930b4c4b67255c3cf88d0d80c76342a31e6710",
       "label": "CRED Issuer",
       "type": "issuer"
     }
