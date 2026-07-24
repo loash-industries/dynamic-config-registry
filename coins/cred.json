@@ -1,18 +1,23 @@
 {
-  "chain_id": "sui:mainnet",
-  "coin_type": "0xa1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff00::cred::CRED",
+  "chain_id": "sui:testnet",
+  "coin_type": "0xfbcbd9155669e157ce3999e073930b4c4b67255c3cf88d0d80c76342a31e6710::cred::CRED",
   "symbol": "CRED",
-  "name": "Inter-galactic Credits",
-  "decimals": 9,
-  "icon_url": "https://assets.example.com/coins/cred.png",
-  "description": "Credits - the neutral trading currency for Trinary Exchange.",
+  "name": "Inter-Galactic Credits",
+  "decimals": 6,
+  "icon_url": "https://trinary.exchange/trilith.svg",
+  "description": "The CRED token secures the TriexBook protocol, the premier wholesale liquidity venue for on-chain trading.",
   "project_url": "https://trinary.exchange",
   "tags": ["defi", "governance"],
   "treasury_addresses": [
     {
-      "address": "0xfbcbd9155669e157ce3999e073930b4c4b67255c3cf88d0d80c76342a31e6710",
+      "address": "0xc2aa8506eab3adbc54597bfefd7c7f2ed7527e6f704a888744697ba07812c92e",
       "label": "CRED Issuer",
       "type": "issuer"
+    },
+    {
+      "address": "0x7a1378aafadef8ce743b72e8b248295c8f61c102c94040161146ea4d51a182b6",
+      "label": "CRED Open Pool Lockup",
+      "type": "treasury"
     }
   ]
 }

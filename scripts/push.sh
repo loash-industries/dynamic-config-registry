@@ -41,12 +41,25 @@ if [[ -f .env ]]; then set -a; source .env; set +a; fi
 echo "==> Validating & building"
 npm run build
 
-FILES=(registry.json registry.min.json registry.meta.json)
+S3_PREFIX="${S3_PREFIX:-v1/coins}"
+S3_PREFIX="${S3_PREFIX%/}"   # trim any trailing slash
+
+# Local dist file  ->  published object key (under $S3_PREFIX)  ->  content-type.
+# The canonical consumer path is $S3_PREFIX/list.json; server consumers (etl-api)
+# fetch the raw-zstd sibling list.json.zst. application/zstd is passed through by
+# Cloudflare unchanged (unlike .br/.gz, which CF recompresses).
+UPLOADS=(
+  "registry.json|$S3_PREFIX/list.json|application/json"
+  "registry.min.json|$S3_PREFIX/list.min.json|application/json"
+  "registry.meta.json|$S3_PREFIX/meta.json|application/json"
+  "registry.json.zst|$S3_PREFIX/list.json.zst|application/zstd"
+)
 
 if [[ "$DRY_RUN" == 1 ]]; then
   echo "==> DRY RUN — would upload to s3://${S3_BUCKET:-<S3_BUCKET unset>}/ via ${S3_ENDPOINT:-<S3_ENDPOINT unset>}:"
-  for f in "${FILES[@]}"; do
-    printf '    %-22s %8s bytes\n' "$f" "$(wc -c < "dist/$f" | tr -d ' ')"
+  for u in "${UPLOADS[@]}"; do
+    IFS='|' read -r local_f remote_k ctype <<< "$u"
+    printf '    %-18s -> %-22s %-17s %8s bytes\n' "$local_f" "$remote_k" "$ctype" "$(wc -c < "dist/$local_f" | tr -d ' ')"
   done
   echo "==> No upload performed."
   exit 0
@@ -54,18 +67,19 @@ fi
 
 : "${S3_BUCKET:?set S3_BUCKET (e.g. coin-registry)}"
 : "${S3_ENDPOINT:?set S3_ENDPOINT (e.g. https://fsn1.your-objectstorage.com)}"
-S3_REGION="${S3_REGION:-fsn1}"
+S3_REGION="${S3_REGION:-nbg1}"
 
 AWS_ARGS=(--endpoint-url "$S3_ENDPOINT" --region "$S3_REGION")
 if [[ -n "${AWS_PROFILE:-}" ]]; then AWS_ARGS+=(--profile "$AWS_PROFILE"); fi
 
-echo "==> Uploading to s3://$S3_BUCKET/ via $S3_ENDPOINT"
-for f in "${FILES[@]}"; do
-  aws s3 cp "dist/$f" "s3://$S3_BUCKET/$f" \
+echo "==> Uploading to s3://$S3_BUCKET/$S3_PREFIX/ via $S3_ENDPOINT"
+for u in "${UPLOADS[@]}"; do
+  IFS='|' read -r local_f remote_k ctype <<< "$u"
+  aws s3 cp "dist/$local_f" "s3://$S3_BUCKET/$remote_k" \
     "${AWS_ARGS[@]}" \
-    --content-type application/json \
+    --content-type "$ctype" \
     --cache-control "public, max-age=60" \
     --acl public-read
 done
 
-echo "==> Done. Verify:  curl -s \"$S3_ENDPOINT/$S3_BUCKET/registry.meta.json\""
+echo "==> Done. Verify:  curl -s \"$S3_ENDPOINT/$S3_BUCKET/$S3_PREFIX/list.json\""

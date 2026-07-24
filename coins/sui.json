@@ -1,0 +1,9 @@
+{
+  "chain_id": "sui:mainnet",
+  "coin_type": "0x2::sui::SUI",
+  "symbol": "SUI",
+  "name": "Sui",
+  "decimals": 9,
+  "icon_url": "https://assets.coingecko.com/coins/images/26375/large/sui-ocean-square.png",
+  "project_url": "https://sui.io"
+}

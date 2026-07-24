@@ -1,6 +1,15 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import zlib from "node:zlib";
 import { DIST_DIR, normalizeCoin, validateAll } from "./registry.js";
+
+// zstdCompressSync ships in Node 22.15+ but may not be in the pinned
+// @types/node yet — typed locally until that dependency is bumped. The raw
+// zstd sibling is what server consumers (etl-api) fetch: application/zstd is a
+// content type Cloudflare passes through unchanged (unlike .br/.gz).
+const zstdCompressSync = (
+  zlib as unknown as { zstdCompressSync: (buf: Uint8Array) => Buffer }
+).zstdCompressSync;
 
 function main(): void {
   const { coins, errors } = validateAll();
@@ -21,8 +30,14 @@ function main(): void {
   mkdirSync(DIST_DIR, { recursive: true });
 
   const pretty = `${JSON.stringify(registry, null, 2)}\n`;
+  const min = JSON.stringify(registry);
   writeFileSync(join(DIST_DIR, "registry.json"), pretty);
-  writeFileSync(join(DIST_DIR, "registry.min.json"), JSON.stringify(registry));
+  writeFileSync(join(DIST_DIR, "registry.min.json"), min);
+  // Raw zstd of the minified array — the artifact server consumers fetch.
+  writeFileSync(
+    join(DIST_DIR, "registry.json.zst"),
+    zstdCompressSync(Buffer.from(min, "utf8")),
+  );
 
   const meta = {
     count: registry.length,
